@@ -3,60 +3,66 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import {
-  BarChart3,
-  Bot,
-  DollarSign,
-  Globe,
-  Lock,
-  Sparkles,
+  Mic,
+  FileText,
+  BookOpen,
+  Presentation,
+  Users,
+  Video,
 } from "lucide-react";
 
 const values = [
   {
-    icon: Bot,
-    title: "24/7 AI Wealth Advisor",
-    value: "$5,000/yr",
+    icon: Mic,
+    qty: "1",
+    title: "Elevator Speech",
+    value: "$195",
     description:
-      "A traditional financial advisor charges 1% AUM or $5,000+ per year. WealthAgent gives you smarter advice that never sleeps.",
+      "A polished, ready-to-deliver elevator speech that instantly communicates your value and opens doors to new opportunities.",
   },
   {
-    icon: BarChart3,
-    title: "Automated Tax-Loss Harvesting",
-    value: "$3,200/yr",
+    icon: FileText,
+    qty: "16",
+    title: "PDF Workshop Handouts / Email Attachments",
+    value: "$1,200",
     description:
-      "Average tax savings from intelligent harvesting. The AI spots every opportunity to reduce your tax burden automatically.",
+      "Professionally designed handouts you can use in workshops, seminars, or as high-value email attachments that position you as the expert.",
   },
   {
-    icon: Globe,
-    title: "Global Portfolio Diversification",
-    value: "$2,500/yr",
+    icon: BookOpen,
+    qty: "3",
+    title: "PDF Print-on-Demand Customizable Booklets",
+    value: "$495",
     description:
-      "Access to international markets, alternative assets, and strategies typically reserved for ultra-high-net-worth clients.",
+      "Brandable booklets ready for mailouts or workshop presentations — print on demand so you never waste a dollar on inventory.",
   },
   {
-    icon: Sparkles,
-    title: "Real-Time Rebalancing",
-    value: "$1,800/yr",
+    icon: Presentation,
+    qty: "50+",
+    title: "PowerPoint Slide Library with Notes",
+    value: "$2,500",
     description:
-      "Continuous portfolio optimization that captures gains and minimizes drawdowns — not quarterly, not monthly, but in real-time.",
+      "A massive slide library complete with speaker notes — plug and play for any presentation, webinar, or client meeting.",
   },
   {
-    icon: Lock,
-    title: "Institutional Risk Management",
-    value: "$2,000/yr",
+    icon: Users,
+    qty: "12",
+    title: "Monthly Group Coaching Calls",
+    value: "$2,495",
     description:
-      "Hedge-fund-grade risk controls that protect your downside. Stress testing, correlation analysis, and tail-risk hedging included.",
+      "Live monthly calls highlighting Victory Moments, Best Practices, and What\u2019s Working — learn from the wins happening right now.",
   },
   {
-    icon: DollarSign,
-    title: "Retirement & Goal Planning",
-    value: "$1,500/yr",
+    icon: Video,
+    qty: "26",
+    title: "Storyboard Video Content Ideas for Social Media",
+    value: "$2,600",
     description:
-      "Dynamic planning that adapts to your life. Monte Carlo simulations and scenario modeling for every major financial decision.",
+      "Done-for-you storyboard ideas so you always know what to post — never stare at a blank screen again.",
   },
 ];
 
-const totalValue = "$16,000+/yr";
+const totalValue = "$9,485";
 const actualPrice = "$29/mo";
 
 export default function ValueStack() {
@@ -96,8 +102,13 @@ export default function ValueStack() {
               transition={{ duration: 0.5, delay: 0.1 * i }}
               className="card-glow group flex items-start gap-4 p-5 rounded-2xl bg-bg-card border border-border-subtle hover:border-accent/30 transition-all"
             >
-              <div className="shrink-0 w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center mt-0.5">
-                <item.icon size={20} className="text-accent-light" />
+              <div className="shrink-0 flex flex-col items-center gap-1 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                  <item.icon size={20} className="text-accent-light" />
+                </div>
+                <span className="text-xs font-bold text-accent-light">
+                  {item.qty}x
+                </span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-4 mb-1">
