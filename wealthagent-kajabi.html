@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WealthAgent — AI-Powered Wealth Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-dark: #0a0a0b;
+  --bg-card: #111113;
+  --border-subtle: #1e1e22;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --success: #22c55e;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+::selection { background: var(--accent); color: #fff; }
+
+a { text-decoration: none; color: inherit; }
+
+.container { max-width: 1152px; margin: 0 auto; padding: 0 24px; }
+.container-sm { max-width: 768px; margin: 0 auto; padding: 0 24px; }
+.container-md { max-width: 896px; margin: 0 auto; padding: 0 24px; }
+
+.text-center { text-align: center; }
+
+/* ---- Animations ---- */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+.fade-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fade-left.visible { opacity: 1; transform: translateX(0); }
+
+.fade-in {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.fade-in.visible { opacity: 1; }
+
+.scale-in {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.scale-in.visible { opacity: 1; transform: scale(1); }
+
+.stagger-1 { transition-delay: 0.1s; }
+.stagger-2 { transition-delay: 0.2s; }
+.stagger-3 { transition-delay: 0.3s; }
+.stagger-4 { transition-delay: 0.35s; }
+.stagger-5 { transition-delay: 0.4s; }
+.stagger-6 { transition-delay: 0.5s; }
+.stagger-7 { transition-delay: 0.6s; }
+.stagger-8 { transition-delay: 0.7s; }
+
+/* ---- Gradient mesh ---- */
+.gradient-mesh {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.15), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(139,92,246,0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(99,102,241,0.06), transparent);
+}
+
+/* ---- Gradient text ---- */
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8, #c084fc, #818cf8);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
+}
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 200% center; }
+}
+
+/* ---- Pulse ---- */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* ---- Card glow ---- */
+.card-glow {
+  position: relative;
+}
+.card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(99,102,241,0.2), transparent 50%, rgba(139,92,246,0.1));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.card-glow:hover::before { opacity: 1; }
+
+/* ---- Navbar ---- */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
+  border-bottom: 1px solid transparent;
+  animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+.navbar.scrolled {
+  background: rgba(10,10,11,0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom-color: var(--border-subtle);
+}
+.navbar-inner {
+  max-width: 1152px; margin: 0 auto; padding: 0 24px;
+  height: 64px; display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; }
+.nav-logo-icon {
+  width: 32px; height: 32px; border-radius: 8px; background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 14px;
+}
+.nav-logo-text { font-weight: 700; font-size: 18px; }
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a { font-size: 14px; color: var(--text-secondary); transition: color 0.2s; }
+.nav-links a:hover { color: var(--text-primary); }
+.nav-cta-btn {
+  font-size: 14px; font-weight: 500; background: var(--accent); color: #fff;
+  padding: 8px 20px; border-radius: 9999px; transition: all 0.3s;
+}
+.nav-cta-btn:hover { background: var(--accent-light); box-shadow: 0 8px 25px rgba(99,102,241,0.25); }
+.mobile-menu-btn {
+  display: none; background: none; border: none; color: var(--text-secondary); cursor: pointer;
+}
+.mobile-menu {
+  display: none; padding: 16px 24px;
+  background: rgba(10,10,11,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.mobile-menu.open { display: flex; flex-direction: column; gap: 16px; }
+.mobile-menu a { color: var(--text-secondary); transition: color 0.2s; }
+.mobile-menu a:hover { color: var(--text-primary); }
+.mobile-menu .nav-cta-btn { text-align: center; display: block; padding: 10px 20px; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .mobile-menu-btn { display: block; }
+}
+
+/* ---- Hero ---- */
+.hero {
+  position: relative; min-height: 100vh; display: flex; align-items: center;
+  justify-content: center; overflow: hidden; padding: 128px 0 80px;
+}
+.hero-orb-1 {
+  position: absolute; top: 25%; left: 25%; width: 384px; height: 384px;
+  background: rgba(99,102,241,0.1); border-radius: 50%; filter: blur(64px);
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+.hero-orb-2 {
+  position: absolute; bottom: 25%; right: 25%; width: 288px; height: 288px;
+  background: rgba(139,92,246,0.08); border-radius: 50%; filter: blur(64px);
+  animation: pulse-glow 4s ease-in-out infinite 1s;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 9999px; padding: 6px 16px; margin-bottom: 32px;
+}
+.badge-dot-outer {
+  position: relative; width: 8px; height: 8px;
+}
+.badge-dot-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: var(--success); opacity: 0.75;
+  animation: pulse-ring 2s ease-out infinite;
+}
+.badge-dot {
+  position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--success);
+}
+.badge-text { font-size: 14px; color: var(--accent-light); font-weight: 500; }
+
+.hero h1 {
+  font-size: clamp(40px, 6vw, 72px); font-weight: 800;
+  line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 24px;
+}
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px); color: var(--text-secondary);
+  max-width: 640px; margin: 0 auto 40px; line-height: 1.7;
+}
+.hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 64px; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: #fff; font-weight: 600;
+  padding: 16px 32px; border-radius: 9999px; font-size: 16px;
+  transition: all 0.3s; border: none; cursor: pointer;
+}
+.btn-primary:hover {
+  background: var(--accent-light);
+  box-shadow: 0 20px 40px rgba(99,102,241,0.3);
+  transform: scale(1.05);
+}
+.btn-primary svg { transition: transform 0.2s; }
+.btn-primary:hover svg { transform: translateX(4px); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--text-secondary); font-weight: 500;
+  padding: 16px 24px; border-radius: 9999px; font-size: 16px;
+  border: 1px solid var(--border-subtle); transition: all 0.3s;
+  background: transparent; cursor: pointer;
+}
+.btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 768px; margin: 0 auto;
+}
+.stat-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px; border-radius: 16px;
+  background: rgba(17,17,19,0.5); border: 1px solid var(--border-subtle);
+}
+.stat-card .icon { color: var(--accent-light); }
+.stat-number { font-size: 24px; font-weight: 700; }
+.stat-label { font-size: 14px; color: var(--text-muted); }
+
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .hero-ctas { flex-direction: column; align-items: center; }
+}
+
+/* ---- Social Proof ---- */
+.social-proof {
+  padding: 64px 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);
+}
+.social-label {
+  text-align: center; font-size: 12px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 40px;
+}
+.logos-row {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 48px 48px;
+}
+.logos-row span {
+  font-size: 18px; font-weight: 600; color: rgba(113,113,122,0.4);
+  transition: color 0.2s; user-select: none;
+}
+.logos-row span:hover { color: rgba(113,113,122,0.7); }
+
+/* ---- Section headings ---- */
+.section { padding: 96px 0; }
+@media (min-width: 640px) { .section { padding: 128px 0; } }
+.section-label {
+  font-size: 12px; font-weight: 500; color: var(--accent-light);
+  text-transform: uppercase; letter-spacing: 0.15em;
+}
+.section-title {
+  font-size: clamp(28px, 4vw, 48px); font-weight: 700; margin-top: 16px; margin-bottom: 24px;
+  line-height: 1.15;
+}
+.section-title .muted { color: var(--text-secondary); }
+.section-desc { color: var(--text-secondary); max-width: 560px; margin: 0 auto; }
+
+/* ---- How It Works ---- */
+.steps-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+}
+@media (max-width: 1024px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .steps-grid { grid-template-columns: 1fr; } }
+.step-card {
+  padding: 24px; border-radius: 16px; background: var(--bg-card);
+  border: 1px solid var(--border-subtle); transition: border-color 0.3s; height: 100%;
+}
+.step-card:hover { border-color: rgba(99,102,241,0.3); }
+.step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.step-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: rgba(99,102,241,0.1); display: flex; align-items: center; justify-content: center;
+  color: var(--accent-light);
+}
+.step-num { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.step-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.step-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+/* ---- Value Stack ---- */
+.value-list { display: flex; flex-direction: column; gap: 16px; max-width: 768px; margin: 0 auto 48px; }
+.value-item {
+  display: flex; align-items: flex-start; gap: 16px; padding: 20px;
+  border-radius: 16px; background: var(--bg-card);
+  border: 1px solid var(--border-subtle); transition: border-color 0.3s;
+}
+.value-item:hover { border-color: rgba(99,102,241,0.3); }
+.value-icon-col {
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 2px;
+}
+.value-icon-box {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: rgba(99,102,241,0.1); display: flex; align-items: center; justify-content: center;
+  color: var(--accent-light);
+}
+.value-qty { font-size: 11px; font-weight: 700; color: var(--accent-light); }
+.value-content { flex: 1; min-width: 0; }
+.value-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 4px; }
+.value-row h3 { font-weight: 600; font-size: 16px; }
+.value-price {
+  flex-shrink: 0; font-size: 14px; font-weight: 700; color: var(--success);
+  text-decoration: line-through; opacity: 0.7;
+}
+.value-content p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+.value-total {
+  max-width: 768px; margin: 0 auto; text-align: center; padding: 32px;
+  border-radius: 24px; background: var(--bg-card);
+  border: 1px solid rgba(99,102,241,0.3); position: relative; overflow: hidden;
+}
+.value-total-gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(99,102,241,0.05), transparent);
+}
+.value-total-inner { position: relative; }
+.value-total .old-price {
+  font-size: 14px; color: var(--text-muted); margin-bottom: 8px;
+}
+.value-total .old-price span { text-decoration: line-through; margin-left: 4px; color: var(--text-secondary); }
+.value-total .new-price {
+  font-size: clamp(36px, 5vw, 48px); font-weight: 800; margin-bottom: 8px;
+}
+.value-total .sub-price { color: var(--text-secondary); margin-bottom: 24px; }
+
+/* ---- Results / Testimonials ---- */
+.testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 768px) { .testimonials-grid { grid-template-columns: 1fr; } }
+.testimonial-card {
+  padding: 24px; border-radius: 16px; background: var(--bg-card);
+  border: 1px solid var(--border-subtle); transition: border-color 0.3s;
+  display: flex; flex-direction: column;
+}
+.testimonial-card:hover { border-color: rgba(99,102,241,0.3); }
+.testimonial-card .quote-icon { color: rgba(99,102,241,0.3); margin-bottom: 16px; }
+.testimonial-card blockquote {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.7; flex: 1; margin-bottom: 24px;
+}
+.testimonial-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--border-subtle); padding-top: 16px;
+}
+.testimonial-name { font-weight: 600; font-size: 14px; }
+.testimonial-role { font-size: 12px; color: var(--text-muted); }
+.testimonial-result {
+  font-size: 12px; font-weight: 700; color: var(--success);
+  background: rgba(34,197,94,0.1); padding: 4px 12px; border-radius: 9999px;
+}
+
+/* ---- FAQ ---- */
+.faq-item { border-bottom: 1px solid var(--border-subtle); }
+.faq-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; text-align: left; background: none; border: none;
+  color: var(--text-primary); font-weight: 500; font-size: 16px;
+  cursor: pointer; transition: color 0.2s; font-family: inherit;
+}
+.faq-btn:hover { color: var(--accent-light); }
+.faq-btn svg {
+  flex-shrink: 0; color: var(--text-muted);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-item.open .faq-btn svg { transform: rotate(180deg); }
+.faq-answer {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s;
+  opacity: 0;
+}
+.faq-item.open .faq-answer { max-height: 300px; opacity: 1; }
+.faq-answer p {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.7;
+  padding-bottom: 20px; padding-right: 32px;
+}
+
+/* ---- Final CTA ---- */
+.final-cta-title {
+  font-size: clamp(28px, 5vw, 60px); font-weight: 800; margin-bottom: 24px; line-height: 1.1;
+}
+.cta-bullets {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 24px; margin-bottom: 40px;
+}
+.cta-bullet { display: flex; align-items: center; gap: 8px; }
+.cta-bullet .check { color: var(--success); flex-shrink: 0; }
+.cta-bullet span { font-size: 14px; color: var(--text-secondary); }
+.cta-fine { font-size: 12px; color: var(--text-muted); margin-top: 16px; }
+
+/* ---- Footer ---- */
+.footer { border-top: 1px solid var(--border-subtle); padding: 48px 0; }
+.footer-inner {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 24px;
+}
+.footer-logo { display: flex; align-items: center; gap: 8px; }
+.footer-logo-icon {
+  width: 28px; height: 28px; border-radius: 8px; background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 12px;
+}
+.footer-logo-text { font-weight: 700; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 14px; color: var(--text-muted); transition: color 0.2s; }
+.footer-links a:hover { color: var(--text-secondary); }
+.footer-copy { font-size: 12px; color: var(--text-muted); }
+.footer-disclaimer {
+  font-size: 12px; color: rgba(113,113,122,0.5); text-align: center;
+  margin-top: 32px; max-width: 640px; margin-left: auto; margin-right: auto; line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .footer-inner { flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">W</div>
+      <span class="nav-logo-text">WealthAgent</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#features">Features</a>
+      <a href="#results">Results</a>
+      <a href="#faq">FAQ</a>
+      <a href="#cta" class="nav-cta-btn">Get Early Access</a>
+    </div>
+    <button class="mobile-menu-btn" onclick="toggleMobile()" aria-label="Menu">
+      <i data-lucide="menu" style="width:24px;height:24px"></i>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#how-it-works" onclick="closeMobile()">How It Works</a>
+    <a href="#features" onclick="closeMobile()">Features</a>
+    <a href="#results" onclick="closeMobile()">Results</a>
+    <a href="#faq" onclick="closeMobile()">FAQ</a>
+    <a href="#cta" class="nav-cta-btn" onclick="closeMobile()">Get Early Access</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero gradient-mesh">
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+  <div class="container text-center" style="position:relative;">
+
+    <div class="fade-up hero-badge">
+      <span class="badge-dot-outer">
+        <span class="badge-dot-ring"></span>
+        <span class="badge-dot"></span>
+      </span>
+      <span class="badge-text">Now in Early Access — Limited Spots</span>
+    </div>
+
+    <h1 class="fade-up stagger-1">
+      Your Money Should Work<br>
+      <span class="gradient-text">Harder Than You Do</span>
+    </h1>
+
+    <p class="hero-sub fade-up stagger-2">
+      WealthAgent is your AI-powered wealth advisor that monitors, optimizes, and grows your portfolio 24/7. Institutional-grade strategies that used to require $10M minimums — now accessible to everyone.
+    </p>
+
+    <div class="hero-ctas fade-up stagger-3">
+      <a href="#cta" class="btn-primary">
+        Start Growing Your Wealth
+        <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+      </a>
+      <a href="#how-it-works" class="btn-secondary">
+        <i data-lucide="play" style="width:16px;height:16px"></i>
+        See How It Works
+      </a>
+    </div>
+
+    <div class="stats-grid fade-up stagger-5">
+      <div class="stat-card">
+        <i data-lucide="trending-up" class="icon" style="width:20px;height:20px"></i>
+        <span class="stat-number">23.4%</span>
+        <span class="stat-label">Avg. Annual Return</span>
+      </div>
+      <div class="stat-card">
+        <i data-lucide="shield" class="icon" style="width:20px;height:20px"></i>
+        <span class="stat-number">$2.1B+</span>
+        <span class="stat-label">Assets Monitored</span>
+      </div>
+      <div class="stat-card">
+        <i data-lucide="zap" class="icon" style="width:20px;height:20px"></i>
+        <span class="stat-number">&lt; 50ms</span>
+        <span class="stat-label">Decision Speed</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== SOCIAL PROOF ===== -->
+<section class="social-proof">
+  <div class="container">
+    <p class="social-label fade-in">Trusted by investors featured in</p>
+    <div class="logos-row fade-in stagger-2">
+      <span>Bloomberg</span>
+      <span>Forbes</span>
+      <span>TechCrunch</span>
+      <span>Wall Street Journal</span>
+      <span>CNBC</span>
+      <span>Financial Times</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="text-center fade-up" style="margin-bottom:64px;">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-title">From Signup to Wealth Growth<br><span class="muted">in Four Steps</span></h2>
+      <p class="section-desc">No jargon. No complexity. Just connect, and let the AI handle the rest.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="card-glow step-card fade-up stagger-1">
+        <div class="step-header">
+          <div class="step-icon"><i data-lucide="wallet" style="width:20px;height:20px"></i></div>
+          <span class="step-num">Step 1</span>
+        </div>
+        <h3>Connect Your Accounts</h3>
+        <p>Link your brokerage, retirement, and savings accounts in under 2 minutes. Bank-grade encryption keeps everything locked down.</p>
+      </div>
+      <div class="card-glow step-card fade-up stagger-2">
+        <div class="step-header">
+          <div class="step-icon"><i data-lucide="brain" style="width:20px;height:20px"></i></div>
+          <span class="step-num">Step 2</span>
+        </div>
+        <h3>AI Analyzes Your Situation</h3>
+        <p>Our agent evaluates your risk tolerance, goals, tax situation, and current holdings to build a personalized wealth strategy.</p>
+      </div>
+      <div class="card-glow step-card fade-up stagger-3">
+        <div class="step-header">
+          <div class="step-icon"><i data-lucide="line-chart" style="width:20px;height:20px"></i></div>
+          <span class="step-num">Step 3</span>
+        </div>
+        <h3>Portfolio Gets Optimized</h3>
+        <p>WealthAgent rebalances, tax-loss harvests, and reallocates in real-time — capturing opportunities human advisors miss.</p>
+      </div>
+      <div class="card-glow step-card fade-up stagger-4">
+        <div class="step-header">
+          <div class="step-icon"><i data-lucide="refresh-cw" style="width:20px;height:20px"></i></div>
+          <span class="step-num">Step 4</span>
+        </div>
+        <h3>Continuous Compounding</h3>
+        <p>Your wealth compounds 24/7. The AI adapts to market shifts, life changes, and new opportunities without you lifting a finger.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VALUE STACK ===== -->
+<section class="section gradient-mesh" id="features">
+  <div class="container">
+    <div class="text-center fade-up" style="margin-bottom:64px;">
+      <span class="section-label">The Value Stack</span>
+      <h2 class="section-title">Everything You Get With<br><span class="gradient-text">WealthAgent</span></h2>
+      <p class="section-desc">We stacked every tool, resource, and system you need to grow your business — into one membership.</p>
+    </div>
+
+    <div class="value-list">
+      <div class="card-glow value-item fade-left stagger-1">
+        <div class="value-icon-col">
+          <div class="value-icon-box"><i data-lucide="mic" style="width:20px;height:20px"></i></div>
+          <span class="value-qty">1x</span>
+        </div>
+        <div class="value-content">
+          <div class="value-row">
+            <h3>Elevator Speech</h3>
+            <span class="value-price">$195</span>
+          </div>
+          <p>A polished, ready-to-deliver elevator speech that instantly communicates your value and opens doors to new opportunities.</p>
+        </div>
+      </div>
+
+      <div class="card-glow value-item fade-left stagger-2">
+        <div class="value-icon-col">
+          <div class="value-icon-box"><i data-lucide="file-text" style="width:20px;height:20px"></i></div>
+          <span class="value-qty">16x</span>
+        </div>
+        <div class="value-content">
+          <div class="value-row">
+            <h3>PDF Workshop Handouts / Email Attachments</h3>
+            <span class="value-price">$1,200</span>
+          </div>
+          <p>Professionally designed handouts you can use in workshops, seminars, or as high-value email attachments that position you as the expert.</p>
+        </div>
+      </div>
+
+      <div class="card-glow value-item fade-left stagger-3">
+        <div class="value-icon-col">
+          <div class="value-icon-box"><i data-lucide="book-open" style="width:20px;height:20px"></i></div>
+          <span class="value-qty">3x</span>
+        </div>
+        <div class="value-content">
+          <div class="value-row">
+            <h3>PDF Print-on-Demand Customizable Booklets</h3>
+            <span class="value-price">$495</span>
+          </div>
+          <p>Brandable booklets ready for mailouts or workshop presentations — print on demand so you never waste a dollar on inventory.</p>
+        </div>
+      </div>
+
+      <div class="card-glow value-item fade-left stagger-4">
+        <div class="value-icon-col">
+          <div class="value-icon-box"><i data-lucide="presentation" style="width:20px;height:20px"></i></div>
+          <span class="value-qty">50+x</span>
+        </div>
+        <div class="value-content">
+          <div class="value-row">
+            <h3>PowerPoint Slide Library with Notes</h3>
+            <span class="value-price">$2,500</span>
+          </div>
+          <p>A massive slide library complete with speaker notes — plug and play for any presentation, webinar, or client meeting.</p>
+        </div>
+      </div>
+
+      <div class="card-glow value-item fade-left stagger-5">
+        <div class="value-icon-col">
+          <div class="value-icon-box"><i data-lucide="users" style="width:20px;height:20px"></i></div>
+          <span class="value-qty">12x</span>
+        </div>
+        <div class="value-content">
+          <div class="value-row">
+            <h3>Monthly Group Coaching Calls</h3>
+            <span class="value-price">$2,495</span>
+          </div>
+          <p>Live monthly calls highlighting Victory Moments, Best Practices, and What's Working — learn from the wins happening right now.</p>
+        </div>
+      </div>
+
+      <div class="card-glow value-item fade-left stagger-6">
+        <div class="value-icon-col">
+          <div class="value-icon-box"><i data-lucide="video" style="width:20px;height:20px"></i></div>
+          <span class="value-qty">26x</span>
+        </div>
+        <div class="value-content">
+          <div class="value-row">
+            <h3>Storyboard Video Content Ideas for Social Media</h3>
+            <span class="value-price">$2,600</span>
+          </div>
+          <p>Done-for-you storyboard ideas so you always know what to post — never stare at a blank screen again.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Box -->
+    <div class="value-total scale-in stagger-8">
+      <div class="value-total-gradient"></div>
+      <div class="value-total-inner">
+        <p class="old-price">Total Value:<span>$9,485</span></p>
+        <p class="new-price">Just <span class="gradient-text">$29/mo</span></p>
+        <p class="sub-price">That's less than a dollar a day for everything you need to grow.</p>
+        <a href="#cta" class="btn-primary" style="font-size:16px;">Claim Your Spot</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESULTS / TESTIMONIALS ===== -->
+<section class="section" id="results">
+  <div class="container">
+    <div class="text-center fade-up" style="margin-bottom:64px;">
+      <span class="section-label">Real Results</span>
+      <h2 class="section-title">Don't Take Our Word For It</h2>
+      <p class="section-desc">Our early-access members are already seeing life-changing results.</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="card-glow testimonial-card fade-up stagger-1">
+        <i data-lucide="quote" class="quote-icon" style="width:24px;height:24px;color:rgba(99,102,241,0.3);margin-bottom:16px;"></i>
+        <blockquote>"I was paying a financial advisor $8,000 a year and underperforming the S&P. WealthAgent outperformed my old advisor in the first 3 months — for a fraction of the cost."</blockquote>
+        <div class="testimonial-footer">
+          <div>
+            <p class="testimonial-name">Marcus D.</p>
+            <p class="testimonial-role">Software Engineer</p>
+          </div>
+          <span class="testimonial-result">+31% in 6 months</span>
+        </div>
+      </div>
+
+      <div class="card-glow testimonial-card fade-up stagger-2">
+        <i data-lucide="quote" class="quote-icon" style="width:24px;height:24px;color:rgba(99,102,241,0.3);margin-bottom:16px;"></i>
+        <blockquote>"The tax-loss harvesting alone saved me over $4,200 this year. It caught opportunities my CPA never would have. This thing pays for itself 100x over."</blockquote>
+        <div class="testimonial-footer">
+          <div>
+            <p class="testimonial-name">Sarah K.</p>
+            <p class="testimonial-role">Business Owner</p>
+          </div>
+          <span class="testimonial-result">$4,200 in tax savings</span>
+        </div>
+      </div>
+
+      <div class="card-glow testimonial-card fade-up stagger-3">
+        <i data-lucide="quote" class="quote-icon" style="width:24px;height:24px;color:rgba(99,102,241,0.3);margin-bottom:16px;"></i>
+        <blockquote>"I used to check my portfolio 20 times a day out of anxiety. Now WealthAgent handles everything and I just get a weekly summary. My stress is gone and my returns are up."</blockquote>
+        <div class="testimonial-footer">
+          <div>
+            <p class="testimonial-name">James L.</p>
+            <p class="testimonial-role">Physician</p>
+          </div>
+          <span class="testimonial-result">23% avg annual return</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section" id="faq">
+  <div class="container-sm">
+    <div class="text-center fade-up" style="margin-bottom:48px;">
+      <span class="section-label">FAQ</span>
+      <h2 class="section-title">Questions? We've Got Answers.</h2>
+    </div>
+
+    <div class="fade-up stagger-2">
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          <span>Is my money safe with WealthAgent?</span>
+          <i data-lucide="chevron-down" style="width:18px;height:18px"></i>
+        </button>
+        <div class="faq-answer">
+          <p>Absolutely. WealthAgent never holds your funds directly. We integrate with SEC-regulated custodians (like Schwab, Fidelity, etc.) through read-only and trade-authorized connections. Your money stays in your brokerage account — we just make it work harder.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          <span>How is this different from a robo-advisor like Betterment?</span>
+          <i data-lucide="chevron-down" style="width:18px;height:18px"></i>
+        </button>
+        <div class="faq-answer">
+          <p>Traditional robo-advisors use static models and rebalance quarterly. WealthAgent uses real-time AI that actively monitors markets 24/7, performs continuous tax-loss harvesting, and adapts to macroeconomic shifts instantly. Think of it as the difference between cruise control and a self-driving car.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          <span>What kind of returns can I expect?</span>
+          <i data-lucide="chevron-down" style="width:18px;height:18px"></i>
+        </button>
+        <div class="faq-answer">
+          <p>While past performance doesn't guarantee future results, our AI has delivered an average 23.4% annual return during our beta period. The AI focuses on risk-adjusted returns — maximizing upside while protecting your downside through institutional-grade risk management.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          <span>Do I need a minimum investment?</span>
+          <i data-lucide="chevron-down" style="width:18px;height:18px"></i>
+        </button>
+        <div class="faq-answer">
+          <p>No. One of our core missions is to democratize wealth management. Whether you're starting with $500 or $500,000, you get the same AI-powered strategies. No minimums, no gating.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          <span>Can I still make my own trades?</span>
+          <i data-lucide="chevron-down" style="width:18px;height:18px"></i>
+        </button>
+        <div class="faq-answer">
+          <p>Of course. WealthAgent is your advisor, not your gatekeeper. You can override any recommendation, set custom constraints (like avoiding certain sectors), or use a hybrid approach where the AI manages part of your portfolio while you manage the rest.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-btn" onclick="toggleFaq(this)">
+          <span>What happens if I want to cancel?</span>
+          <i data-lucide="chevron-down" style="width:18px;height:18px"></i>
+        </button>
+        <div class="faq-answer">
+          <p>Cancel anytime with zero penalties. Your portfolio stays exactly as-is in your brokerage account. We believe in earning your trust every month — not locking you into contracts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="section gradient-mesh" id="cta">
+  <div class="container-md text-center">
+    <div class="fade-up">
+      <h2 class="final-cta-title">
+        Stop Leaving Money<br>
+        <span class="gradient-text">On the Table</span>
+      </h2>
+      <p style="font-size:18px;color:var(--text-secondary);max-width:640px;margin:0 auto 40px;line-height:1.7;">
+        Every day without WealthAgent is a day your portfolio isn't being optimized. Join the waitlist and be the first to access AI-powered wealth management that actually delivers.
+      </p>
+
+      <div class="cta-bullets fade-up stagger-2">
+        <div class="cta-bullet">
+          <i data-lucide="check-circle" class="check" style="width:16px;height:16px"></i>
+          <span>No minimum investment required</span>
+        </div>
+        <div class="cta-bullet">
+          <i data-lucide="check-circle" class="check" style="width:16px;height:16px"></i>
+          <span>Cancel anytime — zero penalties</span>
+        </div>
+        <div class="cta-bullet">
+          <i data-lucide="check-circle" class="check" style="width:16px;height:16px"></i>
+          <span>Bank-grade security &amp; encryption</span>
+        </div>
+        <div class="cta-bullet">
+          <i data-lucide="check-circle" class="check" style="width:16px;height:16px"></i>
+          <span>Setup in under 2 minutes</span>
+        </div>
+      </div>
+
+      <div class="scale-in stagger-4">
+        <a href="#" class="btn-primary" style="font-size:18px;padding:20px 40px;">
+          Get Early Access — It's Free
+          <i data-lucide="arrow-right" style="width:20px;height:20px"></i>
+        </a>
+        <p class="cta-fine">No credit card required. Limited spots available.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <div class="footer-logo-icon">W</div>
+        <span class="footer-logo-text">WealthAgent</span>
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 WealthAgent. All rights reserved.</p>
+    </div>
+    <p class="footer-disclaimer">
+      WealthAgent provides AI-powered portfolio management tools and is not a registered investment advisor. Past performance does not guarantee future results. All investments carry risk, including loss of principal. Please consult a qualified financial advisor for personalized advice.
+    </p>
+  </div>
+</footer>
+
+<script>
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Navbar scroll effect
+window.addEventListener('scroll', function() {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Mobile menu
+function toggleMobile() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+function closeMobile() {
+  document.getElementById('mobile-menu').classList.remove('open');
+}
+
+// FAQ accordion
+function toggleFaq(btn) {
+  var item = btn.parentElement;
+  var wasOpen = item.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.faq-item').forEach(function(el) { el.classList.remove('open'); });
+  // Toggle clicked
+  if (!wasOpen) item.classList.add('open');
+}
+
+// Scroll-triggered animations via Intersection Observer
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.fade-up, .fade-left, .fade-in, .scale-in').forEach(function(el) {
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>
